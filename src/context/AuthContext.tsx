@@ -1,0 +1,87 @@
+import React, { createContext, useState, useEffect } from "react";
+import axios from "axios";
+
+// Define context types
+interface User {
+  id: number;
+  username: string;
+  email: string;
+}
+
+interface AuthContextType {
+  isAuthenticated: boolean;
+  accessToken: string | null;
+  user: User | null;
+  login: (token: string) => void;
+  logout: () => void;
+  fetchProfile: () => void;
+}
+
+// Create context
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// Define AuthProvider component
+const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [accessToken, setAccessToken] = useState<string | null>(
+    localStorage.getItem("accessToken")
+  );
+  const [user, setUser] = useState<User | null>(null);
+
+  // Fetch user profile from the backend
+  const fetchProfile = async () => {
+    if (accessToken) {
+      try {
+        const response = await axios.get(
+          "https://ia4-user-system-r3ipr29bh-le-phuong-chis-projects.vercel.app/users/profile",
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+        setUser(response.data);
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      }
+    }
+  };
+
+  // When accessToken changes, fetch user profile
+  useEffect(() => {
+    if (accessToken) {
+      fetchProfile();
+    } else {
+      setUser(null); // Clear user info when logged out
+    }
+  }, [accessToken]);
+
+  const login = (token: string) => {
+    setAccessToken(token);
+    localStorage.setItem("accessToken", token);
+  };
+
+  const logout = () => {
+    setAccessToken(null);
+    setUser(null); // Clear user information on logout
+    localStorage.removeItem("accessToken");
+  };
+
+  const isAuthenticated = !!accessToken;
+
+  return (
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        accessToken,
+        user,
+        login,
+        logout,
+        fetchProfile,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export { AuthProvider, AuthContext };
