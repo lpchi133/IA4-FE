@@ -1,10 +1,10 @@
 import { useForm } from "react-hook-form";
-import axios from "axios";
 import { useMutation } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import useAxios from "../../hooks/useAxios";
 
 interface RegisterData {
   name: string;
@@ -16,16 +16,14 @@ interface RegisterData {
 const Register = () => {
   const { register, handleSubmit, formState: { errors } } = useForm<RegisterData>();
   const navigate = useNavigate();
+  const axiosInstance = useAxios();
   const [loading, setLoading] = useState(false);
   const [registerError, setRegisterError] = useState("");
 
   const mutation = useMutation({
     mutationFn: async (data: RegisterData) => {
       setLoading(true);
-      const response = await axios.post(
-        "https://ia4-user-system-r3ipr29bh-le-phuong-chis-projects.vercel.app/auth/register",
-        data
-      );
+      const response = await axiosInstance.post("/auth/register", data);
       return response.data;
     },
     onSuccess: () => {
