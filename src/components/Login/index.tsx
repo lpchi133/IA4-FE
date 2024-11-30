@@ -1,11 +1,11 @@
 import { useForm } from "react-hook-form";
-import axios from "axios";
 import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "../../hooks/useAuth";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import useAxios from "../../hooks/useAxios";
 
 interface LoginData {
   email: string;
@@ -15,6 +15,7 @@ interface LoginData {
 const Login = () => {
   const { register, handleSubmit, formState: { errors } } = useForm<LoginData>();
   const { login } = useAuth();
+  const axiosInstance = useAxios();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [loginError, setLoginError] = useState("");
@@ -22,10 +23,7 @@ const Login = () => {
   const mutation = useMutation({
     mutationFn: async (data: LoginData) => {
       setLoading(true);
-      const response = await axios.post(
-        "https://ia4-user-system-r3ipr29bh-le-phuong-chis-projects.vercel.app/auth/login",
-        data
-      );
+      const response = await axiosInstance.post("/auth/login", data);
       return response.data;
     },
     onSuccess: (data) => {

@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect } from "react";
+// import useAxios from "../hooks/useAxios";
 import axios from "axios";
 
 // Define context types
@@ -26,6 +27,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.getItem("accessToken")
   );
   const [user, setUser] = useState<User | null>(null);
+  // const axiosInstance = useAxios();
 
   // Fetch user profile from the backend
   const fetchProfile = async () => {

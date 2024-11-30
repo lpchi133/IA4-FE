@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../../hooks/useAuth";
+import useAxios from "../../hooks/useAxios";
 
 interface UserProfile {
   username: string;
@@ -9,7 +10,8 @@ interface UserProfile {
   name: string;
 }
 const Profile = () => {
-  const { accessToken, logout } = useAuth();
+  const { logout } = useAuth();
+  const axiosInstance = useAxios();
 
   const [userData, setUserData] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -21,14 +23,7 @@ const Profile = () => {
     const fetchProfile = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          "https://ia4-user-system-r3ipr29bh-le-phuong-chis-projects.vercel.app/users/profile",
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          }
-        );
+        const response = await axiosInstance.get("/users/profile");
         setUserData(response.data); // Store user data in state
       } catch (error) {
         if (axios.isAxiosError(error)) {
@@ -46,7 +41,7 @@ const Profile = () => {
     };
 
     fetchProfile();
-  }, [accessToken, navigate]);
+  }, [axiosInstance]);
 
   // Display loading state
   if (loading) {
