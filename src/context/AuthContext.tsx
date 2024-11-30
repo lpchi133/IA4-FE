@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect } from "react";
 // import useAxios from "../hooks/useAxios";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 // Define context types
 interface User {
@@ -27,7 +28,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.getItem("accessToken")
   );
   const [user, setUser] = useState<User | null>(null);
-  // const axiosInstance = useAxios();
 
   // Fetch user profile from the backend
   const fetchProfile = async () => {
@@ -44,6 +44,10 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(response.data);
       } catch (error) {
         console.error("Error fetching user profile:", error);
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          logout(); // Token expires then logout
+          toast.error("Your session has expired. Please log in again.");
+        }
       }
     }
   };
