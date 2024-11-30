@@ -41,7 +41,7 @@ const Profile = () => {
     };
 
     fetchProfile();
-  }, [axiosInstance]);
+  }, []);
 
   // Display loading state
   if (loading) {
